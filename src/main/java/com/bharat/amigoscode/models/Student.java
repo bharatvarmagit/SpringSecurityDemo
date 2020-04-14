@@ -2,6 +2,7 @@ package com.bharat.amigoscode.models;
 
 public class Student {
 	
+	
 	private int id;
 	private String name;
 	
@@ -38,4 +39,9 @@ public class Student {
 	public void setName(String name) {
 		this.name = name;
 	}
+	@Override
+	public String toString() {
+		return "Student [id=" + id + ", name=" + name + "]";
+	}
+	
 }

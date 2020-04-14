@@ -3,6 +3,7 @@ package com.bharat.amigoscode.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -27,9 +28,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	protected void configure(HttpSecurity http) throws Exception {
 		
 		http.
-		authorizeRequests()
+		csrf().disable() 
+		.authorizeRequests()
 		.antMatchers("/","index","/css/*","/js/*")
 		.permitAll()
+		.antMatchers("/api/**")
+		.hasRole(AppUserRoles.STUDENT.name())
+		.antMatchers(HttpMethod.GET,"/admin/api**")
+		.hasAuthority(AppUserPermissions.COURSE_READ.name())
+		.antMatchers(HttpMethod.POST,"/admin/api**")
+		.hasAuthority(AppUserPermissions.COURSE_WRITE.name())
+		.antMatchers(HttpMethod.PUT,"/admin/api**")
+		.hasAuthority(AppUserPermissions.COURSE_WRITE.name())
+		.antMatchers(HttpMethod.DELETE,"/admin/api**")
+		.hasAuthority(AppUserPermissions.COURSE_WRITE.name())
 		.anyRequest()
 		.authenticated()
 		.and()
@@ -38,21 +50,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 	@Override
 	@Bean
 	protected UserDetailsService userDetailsService() {
-		UserDetails adminbharat=User.builder()	
+		UserDetails adminBharat=User.builder()	
 		.username("adminbharat")
 		.password(passwordencoder.encode("adminpass"))
-		.roles("ADMIN")
+		.roles(AppUserRoles.ADMIN.name())
 		.build();
 		
-		UserDetails userbharat=User.builder()
-		.username("bharat")
-		.password(passwordencoder.encode("pass"))
-		.roles("STUDENT")
+		UserDetails userBharat=User.builder()
+		.username("userbharat")
+		.password(passwordencoder.encode("userpass"))
+		.roles(AppUserRoles.STUDENT.name())
 		.build();
-		return new InMemoryUserDetailsManager(userbharat,adminbharat);
+		
+		UserDetails adminTrainee=User.builder()
+				.username("admintrainee")
+				.password(passwordencoder.encode("admintraineepass"))
+				.roles(AppUserRoles.ADMINTRAINEE.name())
+				.build();
+		return new InMemoryUserDetailsManager(userBharat,adminBharat,adminTrainee);
 	}
 	
-	
+						
 
 	
 }
