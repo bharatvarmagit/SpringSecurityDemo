@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -33,15 +34,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		.antMatchers("/","index","/css/*","/js/*")
 		.permitAll()
 		.antMatchers("/api/**")
-		.hasRole(AppUserRoles.STUDENT.name())
-		.antMatchers(HttpMethod.GET,"/admin/api**")
-		.hasAuthority(AppUserPermissions.COURSE_READ.name())
+		.hasRole(AppUserRoles.STUDENT.name())	
 		.antMatchers(HttpMethod.POST,"/admin/api**")
-		.hasAuthority(AppUserPermissions.COURSE_WRITE.name())
+		.hasAuthority(AppUserPermissions.COURSE_WRITE.getPermission())
 		.antMatchers(HttpMethod.PUT,"/admin/api**")
-		.hasAuthority(AppUserPermissions.COURSE_WRITE.name())
+		.hasAuthority(AppUserPermissions.COURSE_WRITE.getPermission())
 		.antMatchers(HttpMethod.DELETE,"/admin/api**")
-		.hasAuthority(AppUserPermissions.COURSE_WRITE.name())
+		.hasAuthority(AppUserPermissions.COURSE_WRITE.getPermission())
+		.antMatchers(HttpMethod.GET,"/admin/api**")
+		.hasAnyRole(AppUserRoles.ADMIN.name(),AppUserRoles.ADMINTRAINEE.name())
 		.anyRequest()
 		.authenticated()
 		.and()
@@ -53,19 +54,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 		UserDetails adminBharat=User.builder()	
 		.username("adminbharat")
 		.password(passwordencoder.encode("adminpass"))
-		.roles(AppUserRoles.ADMIN.name())
+		.authorities(AppUserRoles.ADMIN.getGrantedAuthorities())
+//		.roles(AppUserRoles.ADMIN.name())
 		.build();
 		
 		UserDetails userBharat=User.builder()
 		.username("userbharat")
 		.password(passwordencoder.encode("userpass"))
-		.roles(AppUserRoles.STUDENT.name())
+		.authorities(AppUserRoles.STUDENT.getGrantedAuthorities())
+//		.roles(AppUserRoles.STUDENT.name())
 		.build();
 		
 		UserDetails adminTrainee=User.builder()
 				.username("admintrainee")
 				.password(passwordencoder.encode("admintraineepass"))
-				.roles(AppUserRoles.ADMINTRAINEE.name())
+				.authorities(AppUserRoles.ADMINTRAINEE.getGrantedAuthorities())
+//				.roles(AppUserRoles.ADMINTRAINEE.name())
 				.build();
 		return new InMemoryUserDetailsManager(userBharat,adminBharat,adminTrainee);
 	}

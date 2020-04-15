@@ -1,8 +1,11 @@
 package com.bharat.amigoscode.config;
 
-import com.google.common.collect.Sets;
-
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import com.google.common.collect.Sets;
 
 public enum AppUserRoles {
 	
@@ -24,8 +27,16 @@ public enum AppUserRoles {
 		this.permissions=permits;
 	}
 	
-	public Set<AppUserPermissions> getPermission() {
+	public Set<AppUserPermissions> getPermissions() {
 		return this.permissions;
+	}
+	public Set<SimpleGrantedAuthority> getGrantedAuthorities(){
+		Set<SimpleGrantedAuthority> permissions=getPermissions().stream()
+		.map(permission->new SimpleGrantedAuthority(permission.getPermission()))//COURSE_WRITE,..e.t.c
+		.collect(Collectors.toSet());
+		permissions.add(new SimpleGrantedAuthority("ROLE_"+this.name())); //ROLE_ADMIN
+		return permissions;
+	
 		
 	}
 
